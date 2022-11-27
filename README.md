@@ -26,7 +26,7 @@ https://github.com/google-developer-training/android-basics-kotlin-unscramble-ap
 アプリ画面
 ----  
 ### 静止画 ###
-<img src="" width="1000">
+<img src="https://user-images.githubusercontent.com/88254716/204164039-6e754160-9e3b-4ee3-b8a6-b0cb403e6847.png" width="1000">
 
 
 ### GIF ###  
