@@ -1,23 +1,43 @@
 package com.example.android.unscramble.ui.game
 
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.TtsSpan
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 
 class GameViewModel: ViewModel() {
     // スコア
-    private var _score = 0
-    val score: Int
+    private val _score = MutableLiveData(0)
+    val score: LiveData<Int>
         get() = _score
 
     // 単語をトライした回数
-    private var _currentWordCount = 0
-    val currentWordCount: Int
+    private val _currentWordCount = MutableLiveData(0)
+    val currentWordCount: LiveData<Int>
         get() = _currentWordCount
 
     // 現在のランダム配列単語
-    private lateinit var _currentScrambledWord: String
-    val currentScrambledWord: String
-        get() = _currentScrambledWord
+    private val _currentScrambledWord = MutableLiveData<String>()
+    // TalkBackでの1文字ずつ読み上げに対応
+    val currentScrambledWord: LiveData<Spannable> = Transformations.map(_currentScrambledWord) {
+        if (it  == null) {
+            SpannableString("")
+        } else {
+            val scrambleWord = it.toString()
+            val spannable: Spannable = SpannableString(scrambleWord)
+            spannable.setSpan(
+                TtsSpan.VerbatimBuilder(scrambleWord).build(),
+                0,
+                scrambleWord.length,
+                Spannable.SPAN_INCLUSIVE_INCLUSIVE
+            )
+            spannable
+        }
+    }
 
     // List of words used in the game
     private var wordsList: MutableList<String> = mutableListOf()
@@ -47,8 +67,8 @@ class GameViewModel: ViewModel() {
         if (wordsList.contains(currentWord)) {
             getNextWord()
         } else {
-            _currentScrambledWord = String(tempWord)
-            ++_currentWordCount
+            _currentScrambledWord.value = String(tempWord)
+            _currentWordCount.value = (_currentWordCount.value)?.inc()
             wordsList.add(currentWord)
         }
     }
@@ -57,8 +77,8 @@ class GameViewModel: ViewModel() {
     * Re-initializes the game data to restart the game.
     */
     fun reinitializeData() {
-        _score = 0
-        _currentWordCount = 0
+        _score.value = 0
+        _currentWordCount.value = 0
         wordsList.clear()
         getNextWord()
     }
@@ -67,7 +87,7 @@ class GameViewModel: ViewModel() {
     * Increases the game score if the player's word is correct.
     */
     private fun increaseScore() {
-        _score += SCORE_INCREASE
+        _score.value = (_score.value)?.plus(SCORE_INCREASE)
     }
 
     /*
@@ -86,7 +106,7 @@ class GameViewModel: ViewModel() {
     * Returns true if the current word count is less than MAX_NO_OF_WORDS.
     */
     fun nextWord(): Boolean {
-        return if (_currentWordCount < MAX_NO_OF_WORDS) {
+        return if (_currentWordCount.value!! < MAX_NO_OF_WORDS) {
             getNextWord()
             true
         } else false
