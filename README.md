@@ -30,4 +30,4 @@ https://github.com/google-developer-training/android-basics-kotlin-unscramble-ap
 
 
 ### GIF ###  
-<img src="" width="300">
+<img src="https://user-images.githubusercontent.com/88254716/204164255-ae735a51-70d4-4a73-98b5-0ae76503bbed.gif" width="300">
